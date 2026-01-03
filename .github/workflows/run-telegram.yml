@@ -1,6 +1,6 @@
 name: Manual Telegram Script
 on: 
-  workflow_dispatch: # 允许在 GitHub Actions 页面手动触发
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -15,15 +15,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # 使用 --force 强制绕过 RSSHub 的依赖冲突 (undici 版本冲突)
         run: npm install --force
 
-      - name: Run Telegram Session Script
-        # 运行获取 Session 的脚本
-        # 如果脚本中使用了环境变量，可以在下方 env 部分添加
+      - name: Run Script with Variables
+        # 这里通过环境变量直接把值传进去
         run: node ./lib/routes/telegram/scripts/get-telegram-session.mjs
         env:
-          NODE_ENV: production
-          # 如果你的脚本需要 API_ID 等环境变量，可以在这里补充：
-          # TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
-          # TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_API_ID: ${{ secrets.TG_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TG_API_HASH }}
+          TELEGRAM_PHONE: ${{ secrets.TG_PHONE }}

@@ -1,6 +1,6 @@
 name: Manual Telegram Script
 on: 
-  workflow_dispatch: # 允许手动点击按钮触发
+  workflow_dispatch: # 允许在 GitHub Actions 页面手动触发
 
 jobs:
   run-script:
@@ -12,10 +12,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # 确保版本与你的脚本兼容
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install # 如果你的脚本依赖某些包，先安装
+        # 使用 --force 强制绕过 RSSHub 的依赖冲突 (undici 版本冲突)
+        run: npm install --force
 
       - name: Run Telegram Session Script
+        # 运行获取 Session 的脚本
+        # 如果脚本中使用了环境变量，可以在下方 env 部分添加
         run: node ./lib/routes/telegram/scripts/get-telegram-session.mjs
+        env:
+          NODE_ENV: production
+          # 如果你的脚本需要 API_ID 等环境变量，可以在这里补充：
+          # TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          # TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}

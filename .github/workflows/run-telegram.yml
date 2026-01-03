@@ -1,0 +1,21 @@
+name: Manual Telegram Script
+on: 
+  workflow_dispatch: # 允许手动点击按钮触发
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # 确保版本与你的脚本兼容
+
+      - name: Install dependencies
+        run: npm install # 如果你的脚本依赖某些包，先安装
+
+      - name: Run Telegram Session Script
+        run: node ./lib/routes/telegram/scripts/get-telegram-session.mjs

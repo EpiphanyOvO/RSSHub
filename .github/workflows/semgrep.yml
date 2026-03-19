@@ -2,39 +2,32 @@ name: Semgrep
 
 # https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#sample-github-actions-configuration-file
 on:
-  pull_request_target:
-    branches:
-      - master
-  push:
-    branches:
-      - master
-  schedule:
-    # random HH:MM to avoid a load spike on GitHub Actions at 00:00
-    - cron: 21 20 * * *
-    
+    pull_request_target:
+        branches:
+            - master
+    push:
+        branches:
+            - master
+    schedule:
+        # random HH:MM to avoid a load spike on GitHub Actions at 00:00
+        - cron: 21 20 * * *
+
 jobs:
-  semgrep:
-    name: Scan
-    runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep
-    if: (github.triggering_actor != 'dependabot[bot]')
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      # 使用稳定版 v4
-      - uses: actions/checkout@v4
-
-      - name: Run Semgrep CI
-        # 关键修改：使用 --output 确保生成纯净的 SARIF 文件，避免日志干扰
-        run: semgrep ci --sarif --output=semgrep.sarif || true
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
-      - name: Upload SARIF file for GitHub Advanced Security Dashboard
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: semgrep.sarif
-        # 即使扫描报错（发现漏洞）也执行上传，这样你能在 Security 面板看到结果
-        if: always()
+    semgrep:
+        name: Scan
+        runs-on: ubuntu-latest
+        container:
+            image: returntocorp/semgrep
+        if: (github.triggering_actor != 'dependabot[bot]')
+        permissions:
+            security-events: write
+        steps:
+            - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - run: semgrep ci --sarif > semgrep.sarif
+              env:
+                  SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+            - name: Upload SARIF file for GitHub Advanced Security Dashboard
+              uses: github/codeql-action/upload-sarif@v4
+              with:
+                  sarif_file: semgrep.sarif
+              if: always()
